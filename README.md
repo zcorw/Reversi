@@ -117,7 +117,7 @@ for (let y = 0; y < len - 2; y++) {
         if (filterB == 0) {
             break;
         }
-		 _success |= self[y + i + 1] & filterB;
+        _success |= self[y + i + 1] & filterB;
     }
 }
 ```
