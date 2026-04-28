@@ -28,29 +28,33 @@
           </div>
         </div>
 
-        <div id="board" class="board" role="grid" aria-label="黑白棋棋盘"></div>
+        <div class="main-layout">
+          <div class="play-area">
+            <div id="board" class="board" role="grid" aria-label="黑白棋棋盘"></div>
 
-        <div class="controls" aria-label="游戏控制">
-          <label class="mode-control" for="modeSelect">
-            <span>模式</span>
-            <select id="modeSelect">
-              <option value="human">人人对战</option>
-              <option value="ai" selected>人机对战</option>
-            </select>
-          </label>
-          <button id="undoBtn" type="button">悔棋</button>
-          <button id="redoBtn" type="button">重做</button>
-          <button id="restartBtn" type="button">重新开始</button>
-          <button id="rulesBtn" type="button">规则说明</button>
-        </div>
-
-        <section class="ai-log" aria-labelledby="aiLogTitle">
-          <div class="ai-log-header">
-            <h2 id="aiLogTitle">AI 推理过程</h2>
-            <span id="aiLogCount">0 次</span>
+            <div class="controls" aria-label="游戏控制">
+              <label class="mode-control" for="modeSelect">
+                <span>模式</span>
+                <select id="modeSelect">
+                  <option value="human">人人对战</option>
+                  <option value="ai" selected>人机对战</option>
+                </select>
+              </label>
+              <button id="undoBtn" type="button">悔棋</button>
+              <button id="redoBtn" type="button">重做</button>
+              <button id="restartBtn" type="button">重新开始</button>
+              <button id="rulesBtn" type="button">规则说明</button>
+            </div>
           </div>
-          <div id="aiLog" class="ai-log-body" aria-live="polite">暂无 AI 推理记录。</div>
-        </section>
+
+          <section class="ai-log" aria-labelledby="aiLogTitle">
+            <div class="ai-log-header">
+              <h2 id="aiLogTitle">AI 推理过程</h2>
+              <span id="aiLogCount">0 次</span>
+            </div>
+            <div id="aiLog" class="ai-log-body" aria-live="polite">暂无 AI 推理记录。</div>
+          </section>
+        </div>
       </section>
     </main>
 

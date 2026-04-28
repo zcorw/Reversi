@@ -34,12 +34,12 @@ button {
 .app {
   min-height: 100vh;
   display: grid;
-  place-items: center;
+  place-items: start center;
   padding: 24px;
 }
 
 .game-shell {
-  width: min(100%, 760px);
+  width: min(100%, 1180px);
 }
 
 .topbar {
@@ -101,8 +101,19 @@ h1 {
   font-size: 22px;
 }
 
+.main-layout {
+  display: grid;
+  gap: 18px;
+  align-items: start;
+}
+
+.play-area {
+  min-width: 0;
+}
+
 .board {
-  width: min(100%, 680px);
+  width: min(100%, 680px, calc(100vh - 220px));
+  min-width: 280px;
   aspect-ratio: 1;
   display: grid;
   grid-template-columns: repeat(8, 1fr);
@@ -216,7 +227,7 @@ h1 {
 }
 
 .ai-log {
-  margin-top: 18px;
+  min-width: 0;
   border: 1px solid var(--panel-border);
   border-radius: 8px;
   background: var(--panel);
@@ -245,7 +256,7 @@ h1 {
 }
 
 .ai-log-body {
-  max-height: 220px;
+  max-height: min(360px, 42vh);
   overflow: auto;
   padding: 12px 14px;
   color: #323a37;
@@ -253,6 +264,39 @@ h1 {
   font-size: 13px;
   line-height: 1.55;
   white-space: pre-wrap;
+}
+
+@media (orientation: landscape) and (min-width: 820px) {
+  .app {
+    align-items: center;
+  }
+
+  .main-layout {
+    grid-template-columns: minmax(360px, 1fr) minmax(320px, 420px);
+    align-items: stretch;
+  }
+
+  .board {
+    width: min(100%, calc(100vh - 230px), 660px);
+  }
+
+  .ai-log {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: min(680px, calc(100vh - 160px));
+  }
+
+  .ai-log-body {
+    flex: 1;
+    max-height: none;
+  }
+}
+
+@media (orientation: portrait) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 640px) {
@@ -271,7 +315,13 @@ h1 {
   }
 
   .board {
+    width: min(100%, calc(100vh - 260px));
+    min-width: 0;
     padding: 6px;
     border-width: 7px;
+  }
+
+  .ai-log-body {
+    max-height: 260px;
   }
 }

@@ -120,3 +120,27 @@ test('位棋盘计算不会在棋盘边界跨行串位', async ({ page }) => {
 
   expect(legalMoves).toEqual([]);
 });
+
+test('横屏时棋盘和 AI 推理区域水平排列', async ({ page }) => {
+  await page.setViewportSize({ width: 1200, height: 760 });
+  await openGame(page);
+
+  const boardBox = await page.locator('#board').boundingBox();
+  const logBox = await page.locator('.ai-log').boundingBox();
+
+  expect(boardBox).not.toBeNull();
+  expect(logBox).not.toBeNull();
+  expect(logBox.x).toBeGreaterThan(boardBox.x + boardBox.width);
+});
+
+test('竖屏时棋盘和 AI 推理区域垂直排列', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 860 });
+  await openGame(page);
+
+  const boardBox = await page.locator('#board').boundingBox();
+  const logBox = await page.locator('.ai-log').boundingBox();
+
+  expect(boardBox).not.toBeNull();
+  expect(logBox).not.toBeNull();
+  expect(logBox.y).toBeGreaterThan(boardBox.y + boardBox.height);
+});
