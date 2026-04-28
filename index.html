@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>黑白棋 Reversi</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="game-shell" aria-label="黑白棋游戏">
+        <div class="topbar">
+          <div>
+            <h1>黑白棋</h1>
+            <p id="statusText" class="status" aria-live="polite">黑棋先手</p>
+          </div>
+          <div class="scoreboard" aria-label="比分">
+            <div class="score score-black">
+              <span class="score-dot" aria-hidden="true"></span>
+              <span>黑棋</span>
+              <strong id="blackScore">2</strong>
+            </div>
+            <div class="score score-white">
+              <span class="score-dot" aria-hidden="true"></span>
+              <span>白棋</span>
+              <strong id="whiteScore">2</strong>
+            </div>
+          </div>
+        </div>
+
+        <div id="board" class="board" role="grid" aria-label="黑白棋棋盘"></div>
+
+        <div class="controls" aria-label="游戏控制">
+          <label class="mode-control" for="modeSelect">
+            <span>模式</span>
+            <select id="modeSelect">
+              <option value="human">人人对战</option>
+              <option value="ai" selected>人机对战</option>
+            </select>
+          </label>
+          <button id="undoBtn" type="button">悔棋</button>
+          <button id="redoBtn" type="button">重做</button>
+          <button id="restartBtn" type="button">重新开始</button>
+          <button id="rulesBtn" type="button">规则说明</button>
+        </div>
+
+        <section class="ai-log" aria-labelledby="aiLogTitle">
+          <div class="ai-log-header">
+            <h2 id="aiLogTitle">AI 推理过程</h2>
+            <span id="aiLogCount">0 次</span>
+          </div>
+          <div id="aiLog" class="ai-log-body" aria-live="polite">暂无 AI 推理记录。</div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./src/constants.js"></script>
+    <script src="./src/board.js"></script>
+    <script src="./src/rules.js"></script>
+    <script src="./src/ai.js"></script>
+    <script src="./src/history.js"></script>
+    <script src="./src/game.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

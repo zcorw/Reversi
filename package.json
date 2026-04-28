@@ -1,0 +1,14 @@
+{
+  "name": "Reversi",
+  "type": "module",
+  "packageManager": "yarn@4.9.1",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:report": "playwright show-report"
+  }
+}
