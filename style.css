@@ -187,7 +187,8 @@ h1 {
   margin-top: 18px;
 }
 
-.mode-control {
+.mode-control,
+.select-control {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -195,7 +196,8 @@ h1 {
   color: var(--muted);
 }
 
-.mode-control select {
+.mode-control select,
+.select-control select {
   min-height: 42px;
   border: 1px solid #bdb3a3;
   border-radius: 8px;

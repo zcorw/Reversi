@@ -1,7 +1,16 @@
 (function (global) {
   "use strict";
 
-  const { BLACK, WHITE, EMPTY, SIZE, colorName, RULES_TEXT } = global.Reversi.constants;
+  const {
+    BLACK,
+    WHITE,
+    EMPTY,
+    SIZE,
+    colorName,
+    RULES_TEXT,
+    AI_DIFFICULTY,
+    difficultyName,
+  } = global.Reversi.constants;
   const { Board, Rules, ReversiAI, GameHistory } = global.Reversi;
 
   class ReversiGame {
@@ -13,6 +22,7 @@
       this.finished = false;
       this.message = "";
       this.mode = "ai";
+      this.difficulty = AI_DIFFICULTY.NORMAL;
       this.humanPlayer = BLACK;
       this.aiPlayer = WHITE;
       this.aiTimer = null;
@@ -24,6 +34,7 @@
       this.blackScoreElement = document.querySelector("#blackScore");
       this.whiteScoreElement = document.querySelector("#whiteScore");
       this.modeSelect = document.querySelector("#modeSelect");
+      this.difficultySelect = document.querySelector("#difficultySelect");
       this.undoButton = document.querySelector("#undoBtn");
       this.redoButton = document.querySelector("#redoBtn");
       this.restartButton = document.querySelector("#restartBtn");
@@ -48,6 +59,10 @@
       this.rulesButton.addEventListener("click", () => window.alert(RULES_TEXT));
       this.modeSelect.addEventListener("change", () => {
         this.mode = this.modeSelect.value;
+        this.restart();
+      });
+      this.difficultySelect.addEventListener("change", () => {
+        this.difficulty = this.difficultySelect.value;
         this.restart();
       });
     }
@@ -152,6 +167,7 @@
       this.message = "";
       this.aiThoughts = [];
       this.modeSelect.value = this.mode;
+      this.difficultySelect.value = this.difficulty;
       this.render();
       this.scheduleAiMove();
     }
@@ -187,7 +203,7 @@
         return;
       }
 
-      const analysis = ReversiAI.analyzeMoves(this.board, this.currentPlayer);
+      const analysis = ReversiAI.analyzeMoves(this.board, this.currentPlayer, this.difficulty);
       const move = analysis.move;
       if (!move) {
         this.advanceTurn();
@@ -211,6 +227,7 @@
       this.undoButton.disabled = this.history.past.length === 0 || this.aiThinking;
       this.redoButton.disabled = this.history.future.length === 0 || this.aiThinking;
       this.modeSelect.disabled = this.aiThinking;
+      this.difficultySelect.disabled = this.mode !== "ai" || this.aiThinking;
       this.renderAiLog();
 
       this.boardElement.innerHTML = "";
@@ -272,23 +289,43 @@
       const lines = [
         `第 ${turn} 次 AI 推理`,
         `当前执棋：${colorName[this.currentPlayer]}`,
+        `难度：${difficultyName[analysis.difficulty]}`,
         `候选落点：${analysis.candidates.length} 个`,
         `最终选择：${this.formatCoordinate(best.move)}，总分 ${best.score}`,
-        "评分规则：角 +1200，边 +260；给对手角 -1000/个，给对手边 -140/个；对手每个合法落点 -18；每翻 1 子 +1。",
+        this.aiScoringDescription(analysis.difficulty),
         "候选明细：",
       ];
 
       for (const candidate of sorted) {
-        lines.push(
-          `${this.formatCoordinate(candidate.move)} => 总分 ${candidate.score} ` +
-            `(位置 +${candidate.positionScore}, 对手角 ${candidate.opponentCornerMoves}, ` +
-            `对手边 ${candidate.opponentEdgeMoves}, 对手可落 ${candidate.opponentMoveCount}, ` +
-            `边角扣 ${candidate.opponentAccessPenalty}, 机动扣 ${candidate.mobilityPenalty}, ` +
-            `翻子 +${candidate.flipScore})`
-        );
+        lines.push(this.formatAiCandidate(candidate, analysis.difficulty));
       }
 
       return lines.join("\n");
+    }
+
+    aiScoringDescription(difficulty) {
+      if (difficulty === AI_DIFFICULTY.SIMPLE) {
+        return "评分规则：只比较对手下一回合合法落点数量，数量越少越优；并列时选择翻子更多的落点。";
+      }
+
+      return "评分规则：角 +1200，边 +260；给对手角 -1000/个，给对手边 -140/个；对手每个合法落点 -18；每翻 1 子 +1。";
+    }
+
+    formatAiCandidate(candidate, difficulty) {
+      if (difficulty === AI_DIFFICULTY.SIMPLE) {
+        return (
+          `${this.formatCoordinate(candidate.move)} => 对手可落 ${candidate.opponentMoveCount} ` +
+          `(翻子 +${candidate.flipScore})`
+        );
+      }
+
+      return (
+        `${this.formatCoordinate(candidate.move)} => 总分 ${candidate.score} ` +
+        `(位置 +${candidate.positionScore}, 对手角 ${candidate.opponentCornerMoves}, ` +
+        `对手边 ${candidate.opponentEdgeMoves}, 对手可落 ${candidate.opponentMoveCount}, ` +
+        `边角扣 ${candidate.opponentAccessPenalty}, 机动扣 ${candidate.mobilityPenalty}, ` +
+        `翻子 +${candidate.flipScore})`
+      );
     }
 
     formatCoordinate(move) {

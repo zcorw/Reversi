@@ -1,7 +1,7 @@
 (function (global) {
   "use strict";
 
-  const { SIZE } = global.Reversi.constants;
+  const { SIZE, AI_DIFFICULTY } = global.Reversi.constants;
   const { Board, Rules } = global.Reversi;
 
   class ReversiAI {
@@ -39,10 +39,58 @@
       return ReversiAI.opponentAccessDetails(moves).penalty;
     }
 
-    static analyzeMoves(board, player) {
+    static analyzeSimpleMoves(board, player) {
       const moves = Array.from(Rules.legalMoves(board, player).values());
       if (moves.length === 0) {
-        return { move: null, candidates: [] };
+        return { move: null, candidates: [], difficulty: AI_DIFFICULTY.SIMPLE };
+      }
+
+      const opponent = Rules.opponent(player);
+      let bestCandidate = null;
+      const candidates = [];
+
+      for (const move of moves) {
+        const simulatedBoard = new Board();
+        simulatedBoard.loadBits(board.cloneBits());
+        Rules.applyMove(simulatedBoard, move, player);
+
+        const opponentMoves = Rules.legalMoves(simulatedBoard, opponent);
+        const score = -opponentMoves.size;
+        const candidate = {
+          move,
+          score,
+          positionScore: 0,
+          opponentCornerMoves: 0,
+          opponentEdgeMoves: 0,
+          opponentMoveCount: opponentMoves.size,
+          opponentAccessPenalty: 0,
+          mobilityPenalty: opponentMoves.size,
+          flipScore: move.flips.length,
+        };
+
+        candidates.push(candidate);
+        if (
+          !bestCandidate ||
+          candidate.opponentMoveCount < bestCandidate.opponentMoveCount ||
+          (candidate.opponentMoveCount === bestCandidate.opponentMoveCount &&
+            candidate.flipScore > bestCandidate.flipScore)
+        ) {
+          bestCandidate = candidate;
+        }
+      }
+
+      return {
+        move: bestCandidate.move,
+        candidates,
+        bestCandidate,
+        difficulty: AI_DIFFICULTY.SIMPLE,
+      };
+    }
+
+    static analyzeNormalMoves(board, player) {
+      const moves = Array.from(Rules.legalMoves(board, player).values());
+      if (moves.length === 0) {
+        return { move: null, candidates: [], difficulty: AI_DIFFICULTY.NORMAL };
       }
 
       const opponent = Rules.opponent(player);
@@ -78,11 +126,23 @@
         }
       }
 
-      return { move: bestCandidate.move, candidates, bestCandidate };
+      return {
+        move: bestCandidate.move,
+        candidates,
+        bestCandidate,
+        difficulty: AI_DIFFICULTY.NORMAL,
+      };
     }
 
-    static chooseMove(board, player) {
-      return ReversiAI.analyzeMoves(board, player).move;
+    static analyzeMoves(board, player, difficulty = AI_DIFFICULTY.NORMAL) {
+      if (difficulty === AI_DIFFICULTY.SIMPLE) {
+        return ReversiAI.analyzeSimpleMoves(board, player);
+      }
+      return ReversiAI.analyzeNormalMoves(board, player);
+    }
+
+    static chooseMove(board, player, difficulty = AI_DIFFICULTY.NORMAL) {
+      return ReversiAI.analyzeMoves(board, player, difficulty).move;
     }
   }
 

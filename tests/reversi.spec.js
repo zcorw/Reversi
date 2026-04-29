@@ -17,6 +17,7 @@ test('初始化棋盘、比分和合法落点', async ({ page }) => {
   await expect(page).toHaveTitle(/黑白棋 Reversi/);
   await expect(page.locator('#blackScore')).toHaveText('2');
   await expect(page.locator('#whiteScore')).toHaveText('2');
+  await expect(page.getByLabel('难度')).toHaveValue('normal');
   await expect(page.locator('.cell.legal')).toHaveCount(4);
   await expect(page.locator('#statusText')).toContainText('轮到你执黑棋');
 });
@@ -72,8 +73,57 @@ test('AI 落子后会展示并保留推理过程文本', async ({ page }) => {
 
   await expect(page.locator('#aiLogCount')).toHaveText('1 次');
   await expect(page.locator('#aiLog')).toContainText('第 1 次 AI 推理');
+  await expect(page.locator('#aiLog')).toContainText('难度：普通');
   await expect(page.locator('#aiLog')).toContainText('候选明细');
   await expect(page.locator('#aiLog')).toContainText('最终选择');
+});
+
+test('简单难度只选择让对手合法落点最少的落点', async ({ page }) => {
+  await openGame(page);
+
+  const result = await page.evaluate(() => {
+    const { Board, ReversiAI, Rules, constants } = window.ReversiDebug;
+    const { EMPTY, BLACK, WHITE, SIZE, AI_DIFFICULTY } = constants;
+    const board = new Board();
+    board.loadCells(Array.from({ length: SIZE }, () => Array(SIZE).fill(EMPTY)));
+
+    board.set(3, 2, BLACK);
+    board.set(3, 3, WHITE);
+    board.set(3, 4, WHITE);
+    board.set(4, 2, BLACK);
+    board.set(4, 3, WHITE);
+    board.set(5, 4, BLACK);
+
+    const analysis = ReversiAI.analyzeMoves(board, BLACK, AI_DIFFICULTY.SIMPLE);
+    const minOpponentMoveCount = Math.min(
+      ...analysis.candidates.map((candidate) => candidate.opponentMoveCount)
+    );
+    const normalMove = ReversiAI.chooseMove(board, BLACK, AI_DIFFICULTY.NORMAL);
+
+    return {
+      selectedOpponentMoveCount: analysis.bestCandidate.opponentMoveCount,
+      minOpponentMoveCount,
+      selectedMove: analysis.move,
+      normalMove,
+      legalMoveCount: Rules.legalMoves(board, BLACK).size,
+    };
+  });
+
+  expect(result.legalMoveCount).toBeGreaterThan(1);
+  expect(result.selectedOpponentMoveCount).toBe(result.minOpponentMoveCount);
+  expect(result.selectedMove).toMatchObject({ row: expect.any(Number), col: expect.any(Number) });
+  expect(result.normalMove).toMatchObject({ row: expect.any(Number), col: expect.any(Number) });
+});
+
+test('简单难度 AI 日志展示简单策略说明', async ({ page }) => {
+  await openGame(page);
+
+  await page.getByLabel('难度').selectOption('simple');
+  await page.getByRole('gridcell', { name: '3行4列，可落子' }).click();
+  await expect(page.locator('#statusText')).toContainText('轮到你执黑棋', { timeout: 3000 });
+
+  await expect(page.locator('#aiLog')).toContainText('难度：简单');
+  await expect(page.locator('#aiLog')).toContainText('只比较对手下一回合合法落点数量');
 });
 
 test('AI 策略优先选择角，并避免给对手边角机会', async ({ page }) => {

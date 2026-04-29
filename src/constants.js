@@ -40,6 +40,15 @@
   const NOT_A_FILE = ALL_BITS ^ A_FILE;
   const NOT_H_FILE = ALL_BITS ^ H_FILE;
   const BIT_DIRECTIONS = ["N", "S", "E", "W", "NE", "NW", "SE", "SW"];
+  const AI_DIFFICULTY = Object.freeze({
+    SIMPLE: "simple",
+    NORMAL: "normal",
+  });
+
+  const difficultyName = {
+    [AI_DIFFICULTY.SIMPLE]: "简单",
+    [AI_DIFFICULTY.NORMAL]: "普通",
+  };
 
   global.Reversi = {
     ...(global.Reversi || {}),
@@ -54,6 +63,8 @@
       NOT_A_FILE,
       NOT_H_FILE,
       BIT_DIRECTIONS,
+      AI_DIFFICULTY,
+      difficultyName,
     }),
   };
 })(window);
