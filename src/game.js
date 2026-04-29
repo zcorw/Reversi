@@ -25,6 +25,7 @@
       this.difficulty = AI_DIFFICULTY.NORMAL;
       this.humanPlayer = BLACK;
       this.aiPlayer = WHITE;
+      this.playerColor = BLACK;
       this.aiTimer = null;
       this.aiThinking = false;
       this.aiThoughts = [];
@@ -35,6 +36,7 @@
       this.whiteScoreElement = document.querySelector("#whiteScore");
       this.modeSelect = document.querySelector("#modeSelect");
       this.difficultySelect = document.querySelector("#difficultySelect");
+      this.playerColorSelect = document.querySelector("#playerColorSelect");
       this.undoButton = document.querySelector("#undoBtn");
       this.redoButton = document.querySelector("#redoBtn");
       this.restartButton = document.querySelector("#restartBtn");
@@ -63,6 +65,11 @@
       });
       this.difficultySelect.addEventListener("change", () => {
         this.difficulty = this.difficultySelect.value;
+        this.restart();
+      });
+      this.playerColorSelect.addEventListener("change", () => {
+        this.playerColor = this.playerColorSelect.value === "white" ? WHITE : BLACK;
+        this.updatePlayers();
         this.restart();
       });
     }
@@ -160,6 +167,7 @@
       this.cancelAiMove();
       this.board.reset();
       this.history.clear();
+      this.updatePlayers();
       this.currentPlayer = BLACK;
       this.lastMove = null;
       this.finished = false;
@@ -168,8 +176,20 @@
       this.aiThoughts = [];
       this.modeSelect.value = this.mode;
       this.difficultySelect.value = this.difficulty;
+      this.playerColorSelect.value = this.playerColor === WHITE ? "white" : "black";
       this.render();
       this.scheduleAiMove();
+    }
+
+    updatePlayers() {
+      if (this.mode !== "ai") {
+        this.humanPlayer = BLACK;
+        this.aiPlayer = WHITE;
+        return;
+      }
+
+      this.humanPlayer = this.playerColor;
+      this.aiPlayer = Rules.opponent(this.humanPlayer);
     }
 
     isAiTurn() {
@@ -228,6 +248,7 @@
       this.redoButton.disabled = this.history.future.length === 0 || this.aiThinking;
       this.modeSelect.disabled = this.aiThinking;
       this.difficultySelect.disabled = this.mode !== "ai" || this.aiThinking;
+      this.playerColorSelect.disabled = this.mode !== "ai" || this.aiThinking;
       this.renderAiLog();
 
       this.boardElement.innerHTML = "";

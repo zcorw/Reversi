@@ -18,6 +18,7 @@ test('初始化棋盘、比分和合法落点', async ({ page }) => {
   await expect(page.locator('#blackScore')).toHaveText('2');
   await expect(page.locator('#whiteScore')).toHaveText('2');
   await expect(page.getByLabel('难度')).toHaveValue('normal');
+  await expect(page.getByLabel('执棋')).toHaveValue('black');
   await expect(page.locator('.cell.legal')).toHaveCount(4);
   await expect(page.locator('#statusText')).toContainText('轮到你执黑棋');
 });
@@ -48,6 +49,32 @@ test('人机对战模式中 AI 会在玩家落子后自动行动', async ({ page
       return black + white;
     })
     .toBe(6);
+});
+
+test('玩家选择白棋后手时 AI 会执黑先手', async ({ page }) => {
+  await openGame(page);
+
+  await page.getByLabel('执棋').selectOption('white');
+  await expect(page.locator('#statusText')).toContainText('AI 正在思考');
+  await expect(page.locator('#statusText')).toContainText('轮到你执白棋', { timeout: 3000 });
+
+  await expect(page.locator('#aiLogCount')).toHaveText('1 次');
+  await expect
+    .poll(async () => {
+      const black = Number(await page.locator('#blackScore').textContent());
+      const white = Number(await page.locator('#whiteScore').textContent());
+      return black + white;
+    })
+    .toBe(5);
+});
+
+test('人人对战模式禁用人机设置', async ({ page }) => {
+  await openGame(page);
+
+  await page.getByLabel('模式').selectOption('human');
+
+  await expect(page.getByLabel('难度')).toBeDisabled();
+  await expect(page.getByLabel('执棋')).toBeDisabled();
 });
 
 test('点击规则说明按钮会展示规则弹窗', async ({ page }) => {
