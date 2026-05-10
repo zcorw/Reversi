@@ -32,6 +32,8 @@
 
       this.boardElement = document.querySelector("#board");
       this.statusElement = document.querySelector("#statusText");
+      this.turnIndicatorElement = document.querySelector("#turnIndicator");
+      this.turnIndicatorTextElement = document.querySelector("#turnIndicatorText");
       this.blackScoreElement = document.querySelector("#blackScore");
       this.whiteScoreElement = document.querySelector("#whiteScore");
       this.modeSelect = document.querySelector("#modeSelect");
@@ -243,6 +245,7 @@
       this.blackScoreElement.textContent = String(score[BLACK]);
       this.whiteScoreElement.textContent = String(score[WHITE]);
       this.statusElement.textContent = this.statusMessage(legalMoves.size);
+      this.renderTurnIndicator();
 
       this.undoButton.disabled = this.history.past.length === 0 || this.aiThinking;
       this.redoButton.disabled = this.history.future.length === 0 || this.aiThinking;
@@ -294,6 +297,25 @@
         return `轮到 AI 执${colorName[this.currentPlayer]}，可落子 ${legalMoveCount} 处。`;
       }
       return `轮到${colorName[this.currentPlayer]}，可落子 ${legalMoveCount} 处。`;
+    }
+
+    renderTurnIndicator() {
+      const isBlackTurn = this.currentPlayer === BLACK;
+      const role =
+        this.mode === "ai" && !this.finished
+          ? this.currentPlayer === this.aiPlayer
+            ? "AI"
+            : "你"
+          : "";
+      const roleText = role ? `（${role}）` : "";
+      const label = this.finished
+        ? "对局结束"
+        : `当前执棋：${colorName[this.currentPlayer]}${roleText}`;
+
+      this.turnIndicatorElement.classList.toggle("turn-black", isBlackTurn);
+      this.turnIndicatorElement.classList.toggle("turn-white", !isBlackTurn);
+      this.turnIndicatorElement.setAttribute("aria-label", label.replace("当前执棋", "当前轮次"));
+      this.turnIndicatorTextElement.textContent = label;
     }
 
     renderAiLog() {
