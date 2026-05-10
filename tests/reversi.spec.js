@@ -21,6 +21,7 @@ test('初始化棋盘、比分和合法落点', async ({ page }) => {
   await expect(page.getByLabel('执棋')).toHaveValue('black');
   await expect(page.locator('.cell.legal')).toHaveCount(4);
   await expect(page.locator('#statusText')).toContainText('轮到你执黑棋');
+  await expect(page.locator('#turnIndicatorText')).toHaveText('当前执棋：黑棋（你）');
 });
 
 test('人人对战模式可以落子并翻转棋子', async ({ page }) => {
@@ -32,6 +33,7 @@ test('人人对战模式可以落子并翻转棋子', async ({ page }) => {
   await expect(page.locator('#blackScore')).toHaveText('4');
   await expect(page.locator('#whiteScore')).toHaveText('1');
   await expect(page.locator('#statusText')).toContainText('轮到白棋');
+  await expect(page.locator('#turnIndicatorText')).toHaveText('当前执棋：白棋');
   await expect(page.getByRole('gridcell', { name: '3行4列，黑棋' })).toBeVisible();
 });
 

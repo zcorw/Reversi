@@ -64,6 +64,37 @@ h1 {
   font-size: 16px;
 }
 
+.turn-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  margin-top: 10px;
+  padding: 7px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.turn-indicator-dot {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(31, 37, 35, 0.22);
+}
+
+.turn-indicator.turn-black .turn-indicator-dot {
+  background: #161918;
+}
+
+.turn-indicator.turn-white .turn-indicator-dot {
+  background: #f8f5ec;
+  border: 1px solid #b8b1a5;
+}
+
 .scoreboard {
   display: grid;
   grid-template-columns: repeat(2, minmax(120px, 1fr));
